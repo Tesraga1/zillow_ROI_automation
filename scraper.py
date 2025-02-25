@@ -1,7 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-
+import random
+import time
 headers = {
         "Accept": "*/*",
         "Accept-Language": "en",
@@ -33,13 +34,13 @@ def scrape_property_from_page(link: str):
         data = soup.find(id="__NEXT_DATA__")
         with open("output1.html", "w", encoding='utf-8') as file:
             file.write(str(data.contents[0]))
-        data = get_data(data)
+        data = get_singlepage_data(data)
         print(data["price"])
     else:
         print("Get request failed")
     print(r.status_code)
 
-def get_data(data) -> dict[str, any]:
+def get_singlepage_data(data) -> dict[str, any]:
     d = json.loads(data.contents[0])
     property_data = json.loads(d["props"]["pageProps"]["componentProps"]["gdpClientCache"])
     property_data = property_data[list(property_data)[0]]['property']
@@ -47,4 +48,54 @@ def get_data(data) -> dict[str, any]:
         file.write(json.dumps(property_data, indent=2))
     return property_data
 
-scrape_property_from_page('https://www.zillow.com/homedetails/883-Zittrouer-Rd-Guyton-GA-31312/105230722_zpid/')
+def get_page_data(data) -> dict[str, any]:
+    d = json.loads(data.contents[0])
+    with open("output1.json", "w", encoding='utf-8') as file:
+        file.write(str(d))
+    print(d["props"]["pageProps"])
+    property_data = json.loads(d["props"]["pageProps"])
+    return property_data
+
+
+def create_search_payload(
+    query_data: dict, page_number: int = None
+):
+    """create a search payload for Zillow's search API"""
+    payload = {
+        "searchQueryState": query_data,
+        "wants": {"cat1": ["listResults", "mapResults"], "cat2": ["total"]},
+        "requestId": random.randint(2, 10),
+    }
+    if page_number:
+        payload["searchQueryState"]["pagination"] = {"currentPage": page_number}
+    return json.dumps(payload)
+
+
+def search(location: str):
+    page_info = []
+    url = f"https://www.zillow.com/homes/{location}_rb/"
+    r = requests.get(url, headers=headers)
+    print(r.status_code)
+    soup = BeautifulSoup(r.content, 'html5lib')
+    data = soup.find(id="__NEXT_DATA__")
+    data = json.loads(data.contents[0])
+    d = data["props"]["pageProps"]["searchPageState"]["cat1"]["searchResults"]["listResults"]
+    page_info.append(d)
+    numpages = data["props"]["pageProps"]["searchPageState"]["cat1"]["searchList"]["totalPages"]
+    queryState= data["props"]["pageProps"]["searchPageState"]["queryState"]
+    
+    for x in range(2, numpages + 1):
+        time.sleep(0.01)
+        print(x)
+        r = requests.put("https://www.zillow.com/async-create-search-page-state", headers=headers, data=create_search_payload(queryState, x))
+        print(r.status_code)
+        r = r.json()
+        r = r["cat1"]["searchResults"]["listResults"]
+        page_info.append(r)
+    return page_info
+
+#scrape_property_from_page('https://www.zillow.com/homedetails/883-Zittrouer-Rd-Guyton-GA-31312/105230722_zpid/')
+
+p = search("New York, NY")
+for x in range(len(p[0])):
+    print(p[0][x]["price"])
