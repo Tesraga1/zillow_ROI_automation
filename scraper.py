@@ -3,14 +3,8 @@ from bs4 import BeautifulSoup
 import json
 import random
 import time
-headers = {
-        "Accept": "*/*",
-        "Accept-Language": "en",
-        "Accept-Encoding": "gzip, deflate, br",
-        "Content-Type": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:134.0) Gecko/20100101 Firefox/134.0",
-        "Cookie": "zjs_user_id=null",
-    }
+from utils import headers_list
+headers = headers_list()
 
 """
     @parameters: link, a string address to a property's homedetails page
@@ -74,7 +68,9 @@ def create_search_payload(
 def search(location: str):
     page_info = []
     url = f"https://www.zillow.com/homes/{location}_rb/"
-    r = requests.get(url, headers=headers)
+    h = headers[random.randint(0, len(headers)-1)]
+    print(h)
+    r = requests.get(url, headers=h)
     print(r.status_code)
     soup = BeautifulSoup(r.content, 'html5lib')
     data = soup.find(id="__NEXT_DATA__")
@@ -86,16 +82,13 @@ def search(location: str):
     
     for x in range(2, numpages + 1):
         time.sleep(0.01)
-        print(x)
-        r = requests.put("https://www.zillow.com/async-create-search-page-state", headers=headers, data=create_search_payload(queryState, x))
+        h = headers[random.randint(0, len(headers)-1)]
+        r = requests.put("https://www.zillow.com/async-create-search-page-state", headers=h, data=create_search_payload(queryState, x))
         print(r.status_code)
+        if r.status_code != 200:
+            continue
         r = r.json()
         r = r["cat1"]["searchResults"]["listResults"]
         page_info.append(r)
     return page_info
 
-#scrape_property_from_page('https://www.zillow.com/homedetails/883-Zittrouer-Rd-Guyton-GA-31312/105230722_zpid/')
-
-p = search("New York, NY")
-for x in range(len(p[0])):
-    print(p[0][x]["price"])
