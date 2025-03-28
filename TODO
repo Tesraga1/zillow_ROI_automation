@@ -1,7 +1,14 @@
 • Line up items in html
 • Make html page more decorative
 • Push housing information to html
+    • Create Database
+    • Push data to Database
+    • Update html with info from database
 • Calculate ROI using the information recieved from zillow
+    • Get rent
+        •If rent doesnt exist for certain property, estimate based on the rent of property in area
+    • Check for estimates in hoa and other things
+    • Calculate ROI, taking estimated costs vs estimated gain
 • Better scraper to ensure every page is successfully scraped
 • Order houses by highest ROI
 • Allow more percise location selection
