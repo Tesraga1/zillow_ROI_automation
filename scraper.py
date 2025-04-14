@@ -72,6 +72,8 @@ def search(location: str):
     print(h)
     r = requests.get(url, headers=h)
     print(r.status_code)
+    if (r.status_code) != 200:
+        return
     soup = BeautifulSoup(r.content, 'html5lib')
     data = soup.find(id="__NEXT_DATA__")
     data = json.loads(data.contents[0])

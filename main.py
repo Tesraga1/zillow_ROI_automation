@@ -1,6 +1,8 @@
 from scraper import search
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+import sqlite3
 import os
+from db import get_db
 
 '''
 if __name__ == "__main__":
@@ -25,11 +27,27 @@ def create_app():
     except OSError:
         pass
     
-    @app.route("/")
+    @app.route("/", methods=('GET', 'POST'))
     def home():
-        p = search("New York, NY")
-        print(p)
-        return render_template('index.html', input_list = p)
+        if request.method == 'POST':
+            print("Worked")
+            address = request.form['address'] 
+            info = search(address)
+            db = get_db()
+            if info:
+                print(info[0][0]["zpid"])
+                try:
+                    sql = ''' INSERT INTO property(id,price,otherinfo)
+                              VALUES(?,?,?) '''
+                    db.execute(
+                        sql,
+                        (info[0][0]["zpid"], info[0][0]["unformattedPrice"], info[0][0]["address"]),
+                    )
+                    db.commit()
+                    print("Worked")
+                except:
+                    print("Didnt work")
+        return render_template('index.html')
     
     import db
     db.init_app(app)

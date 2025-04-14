@@ -1,7 +1,7 @@
-• Line up items in html
+✓ Line up items in html
 • Make html page more decorative
 • Push housing information to html
-    • Create Database
+    ✓ Create Database
     • Push data to Database
     • Update html with info from database
 • Calculate ROI using the information recieved from zillow
