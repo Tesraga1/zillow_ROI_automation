@@ -37,16 +37,20 @@ def create_app():
             if info:
                 print(info[0][0]["zpid"])
                 try:
-                    sql = ''' INSERT INTO property(id,price,otherinfo)
-                              VALUES(?,?,?) '''
-                    db.execute(
-                        sql,
-                        (info[0][0]["zpid"], info[0][0]["unformattedPrice"], info[0][0]["address"]),
-                    )
-                    db.commit()
+                    for prop in info[0]:
+                        sql = ''' INSERT INTO property(id,price,otherinfo)
+                                VALUES(?,?,?) '''
+                        db.execute(
+                            sql,
+                            (prop["zpid"], prop["unformattedPrice"], prop["address"]),
+                        )
+                        db.commit()
                     print("Worked")
                 except:
                     print("Didnt work")
+                else:
+                    cursor = db.execute('SELECT id,price,otherinfo FROM property')
+                    return render_template("content.html", items = cursor.fetchall())
         return render_template('index.html')
     
     import db
