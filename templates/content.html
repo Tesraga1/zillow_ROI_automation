@@ -1,0 +1,15 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    {% for item in items %}
+    <div class="prop">
+        <img src="{{ item[3] }}" width="300px" height="200px">
+        <ul>
+            <li>ID: {{ item[0] }}</li>
+            <li>Price: {{ item[1] }}</li>
+            <li>Address: {{ item[2] }}</li>
+            <li>ROI: {{ item[4] }}</li>
+        </ul>
+    </div>
+    {% endfor %}
+{% endblock %}

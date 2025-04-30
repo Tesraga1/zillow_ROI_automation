@@ -1,8 +1,9 @@
-from scraper import search
+from scraper import search, scrape_page
 from flask import Flask, render_template, request
 import sqlite3
 import os
 from db import get_db
+from utils import calc_ROI
 
 '''
 if __name__ == "__main__":
@@ -30,31 +31,39 @@ def create_app():
     @app.route("/", methods=('GET', 'POST'))
     def home():
         if request.method == 'POST':
-            print("Worked")
             address = request.form['address'] 
             info = search(address)
             db = get_db()
             if info:
-                print(info[0][0]["zpid"])
+                #print(info[0][0]["zpid"])
                 try:
-                    for prop in info[0]:
-                        sql = ''' INSERT INTO property(id,price,otherinfo)
-                                VALUES(?,?,?) '''
-                        db.execute(
-                            sql,
-                            (prop["zpid"], prop["unformattedPrice"], prop["address"]),
-                        )
-                        db.commit()
+                    #print(info[0][0])
+                    for x in info:
+                        for prop in x:
+                            sql = ''' INSERT OR IGNORE INTO property(id,price,adr,imgid,roi)
+                                    VALUES(?,?,?,?,?) '''
+                            if "hdpData" in prop and "address" in prop and "zpid" in prop and "imgSrc" in prop and "unformattedPrice" in prop:
+                                if "homeInfo" in prop["hdpData"]:
+                                    if "rentZestimate" in prop["hdpData"]["homeInfo"]:
+                                        print(f"Scraping {prop['detailUrl']}")
+                                        tax = scrape_page(prop["detailUrl"])
+                                        print(f"Finished scraping {prop['detailUrl']}")
+                                        if tax != None:
+                                            roi = calc_ROI(prop["unformattedPrice"], tax, prop["hdpData"]["homeInfo"]["rentZestimate"])
+                                            print(prop["zpid"])
+                                            db.execute(
+                                                sql,
+                                                (prop["zpid"], prop["unformattedPrice"], prop["address"], prop["imgSrc"], roi),
+                                            )
+                                            db.commit()
                     print("Worked")
-                except:
-                    print("Didnt work")
+                except Exception as e:
+                    print("Didnt work cause of ", e)
                 else:
-                    cursor = db.execute('SELECT id,price,otherinfo FROM property')
+                    cursor = db.execute('SELECT id,price,adr,imgid,roi FROM property')
                     return render_template("content.html", items = cursor.fetchall())
         return render_template('index.html')
-    
     import db
     db.init_app(app)
 
-   
     return app

@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import json
 import random
 import time
+import re
 from utils import headers_list
 headers = headers_list()
 
@@ -69,11 +70,11 @@ def search(location: str):
     page_info = []
     url = f"https://www.zillow.com/homes/{location}_rb/"
     h = headers[random.randint(0, len(headers)-1)]
-    print(h)
     r = requests.get(url, headers=h)
-    print(r.status_code)
+    print("Scrape code: ", r.status_code)
     if (r.status_code) != 200:
         return
+    print(h)
     soup = BeautifulSoup(r.content, 'html5lib')
     data = soup.find(id="__NEXT_DATA__")
     data = json.loads(data.contents[0])
@@ -83,8 +84,8 @@ def search(location: str):
     queryState= data["props"]["pageProps"]["searchPageState"]["queryState"]
     
     for x in range(2, numpages + 1):
-        time.sleep(0.01)
-        h = headers[random.randint(0, len(headers)-1)]
+        time.sleep(0.10)
+        #h = headers[random.randint(0, len(headers)-1)]
         r = requests.put("https://www.zillow.com/async-create-search-page-state", headers=h, data=create_search_payload(queryState, x))
         print(r.status_code)
         if r.status_code != 200:
@@ -94,3 +95,20 @@ def search(location: str):
         page_info.append(r)
     return page_info
 
+def scrape_page(page_url):
+    h = headers[random.randint(0, len(headers)-1)]
+    retries = 0
+    while retries < 3:
+        try:
+            time.sleep(0.50)
+            r = requests.get(page_url, headers=h)
+            if r.status_code == 200:
+                soup = BeautifulSoup(r.content, 'html5lib')
+                #with open("prop.html", "w", encoding='utf-8') as file:
+                #    file.write(str(soup.text))
+                data = re.findall(r'\\"taxAnnualAmount\\":(\d+)', soup.text)
+                return int(data[0])
+            else:
+                raise Exception(r.status_code)
+        except Exception as e:
+            retries += 1

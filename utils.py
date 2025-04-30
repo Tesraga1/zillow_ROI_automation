@@ -23,21 +23,26 @@ def headers_list() -> dict[str, any]:
             "Accept": "*/*",
             "Accept-Language": "en",
             "Accept-Encoding": "gzip, deflate, br",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+            #"Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
+            #"Sec-Ch-Ua-Mobile": "?0",
+            #"Sec-Ch-Ua-Platform": '"Windows"',
+            #"Sec-Fetch-Dest": "document",
+            #"Sec-Fetch-Mode": "navigate",
+            #"Sec-Fetch-Site": "none",
+            #"Sec-Fetch-User": "?1",
+            #"Upgrade-Insecure-Requests": "1",
             "Content-Type": "application/json",
-            "User-Agent": f"{head_list[x]}",
-            "Sec-Ch-Ua": '"Not_A Brand";v="8", "Chromium";v="120", "Google Chrome";v="120"',
-            "Sec-Ch-Ua-Mobile": "?0",
-            "Sec-Ch-Ua-Platform": '"Windows"',
-            "Sec-Fetch-Dest": "document",
-            "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "none",
-            "Sec-Fetch-User": "?1",
-            "Upgrade-Insecure-Requests": "1",
-            "Content-Type": "application/json",
-            "Cache-Control": "no-cache",
-            "Pragma": "no-cache",
-            "Cookie": "zjs_user_id=null",
+            #"Cache-Control": "no-cache",
+            #"Pragma": "no-cache",
+            "Cookie": "zjs_user_id=null; _px3=94724676",
             "Connection": "keep-alive",
         }
         h.append(headers)
     return h
+
+def calc_ROI(price, tax, rent) -> int:
+    #print(f"Price: {price}\nTax: {tax}\nRent: {rent}")
+    areturn = ((rent * 12) - tax)
+    roi = (areturn / price) * 100
+    return int(roi) 

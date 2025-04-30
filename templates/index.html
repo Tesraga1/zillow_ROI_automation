@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+        <title>Home</title>
+    </head>
+    <body>
+        <div>
+            <h1 class="title">Zillo ROI Calculator</h1>
+        </div>
+        <div class="container">
+            <div class="navigation">
+                <form method="POST">
+                    <input class="search" name="address" type="text" placeholder="Enter an address, neighborhood, city, or ZIP code">
+                    <div class="buttoncontainer">
+                        <button class="button">Price</button>
+                        <button class="button">Beds & Baths</button>
+                        <button class="button">Home Type</button>
+                        <button class="button">More</button>
+                    </div>
+                    <input type="submit" value="Enter" class="button">
+                </form>
+            </div>
+            <div class="content">
+                {% block content %}{% endblock %}
+                
+            </div>
+        </div>
+    </body>
+</html>

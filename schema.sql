@@ -3,5 +3,7 @@ DROP TABLE IF EXISTS property;
 CREATE TABLE property (
     id INTEGER PRIMARY KEY NOT NULL,
     price INTEGER NOT NULL,
-    otherinfo TEXT NOT NULL
+    adr TEXT NOT NULL,
+    imgid TEXT NOT NULL,
+    roi INTEGER NOT NULL
 );
