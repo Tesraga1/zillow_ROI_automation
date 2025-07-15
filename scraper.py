@@ -18,8 +18,7 @@ headers = headers_list()
     The file isn't created if the information isn't correctly gotten from the webpage
 """
 def scrape_property_from_page(link: str):
-    r = requests.get(link, headers=headers)
-
+    r = requests.get(link, headers=headers[0])
     if r.status_code == 200:
         # Parsing the HTML
         soup = BeautifulSoup(r.content, 'html5lib')
@@ -30,7 +29,7 @@ def scrape_property_from_page(link: str):
         with open("output1.html", "w", encoding='utf-8') as file:
             file.write(str(data.contents[0]))
         data = get_singlepage_data(data)
-        print(data["price"])
+        return data
     else:
         print("Get request failed")
     print(r.status_code)

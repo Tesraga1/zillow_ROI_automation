@@ -1,4 +1,7 @@
-*.html
+output1.html
+output2.html
+prop.html
 *.json
 instance
 __pycache__
+*.png
